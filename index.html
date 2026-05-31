@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeAI-Agent 算力众筹与收益分红平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.umd.min.js"></script>
+    <style>
+        body { background: radial-gradient(circle at center, #0f172a, #020617); }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen font-sans">
+
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+            IOPN DeAI-Agent Hub
+        </h1>
+        <button id="connectBtn" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-5 py-2 rounded-xl font-medium shadow-lg shadow-indigo-500/20 transition-all duration-200">
+            连接 OKX 钱包
+        </button>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <div class="md:col-span-2 space-y-6">
+            <h2 class="text-lg font-bold text-slate-400 tracking-wider uppercase">🔥 正在进行的算力众筹</h2>
+            
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-2.5 py-1 rounded-full font-medium">生态首发</span>
+                        <h3 class="text-2xl font-bold mt-2 text-white">LandscapeAI - 景观设计智能体</h3>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-sm text-slate-400">众筹状态</span>
+                        <p class="text-emerald-400 font-bold">募集中</p>
+                    </div>
+                </div>
+
+                <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                    LandscapeAI 致力于通过大规模神经网络为城市园林与荒山绿化工程提供秒级的三维空间设计方案。本次算力众筹将用于锁定 IOPN 链上高性能算力节点，所有参与赞助的用户将永久按比例共享其全网商业化 API 的调用费分红。
+                </p>
+
+                <div class="space-y-2 mb-6">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">已筹集: <strong id="raisedText" class="text-white font-semibold">1.5 OPN</strong></span>
+                        <span class="text-slate-400">目标: 10.0 OPN</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
+                        <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 15%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/60 flex items-center gap-4">
+                    <input id="investAmount" type="number" step="0.1" placeholder="输入赞助金额 (OPN)" class="bg-transparent text-white outline-none flex-1 font-medium text-lg placeholder:text-slate-600">
+                    <button id="investBtn" disabled class="bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 px-6 py-2.5 rounded-lg font-bold transition-all duration-200">
+                        注入算力
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <h2 class="text-lg font-bold text-slate-400 tracking-wider uppercase">📊 我的分红控制台</h2>
+            
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur space-y-4">
+                <div>
+                    <span class="text-xs text-slate-400 block mb-1">我的累计投资额</span>
+                    <div id="myContribution" class="text-2xl font-bold text-white">0.00 <span class="text-sm font-normal text-slate-400">OPN</span></div>
+                </div>
+                <div class="border-t border-slate-800/80 pt-4">
+                    <span class="text-xs text-slate-400 block mb-1">可提取红利池</span>
+                    <div id="myDividend" class="text-3xl font-bold text-blue-400">0.00 <span class="text-sm font-normal text-slate-400">OPN</span></div>
+                </div>
+                <button id="claimBtn" disabled class="w-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 disabled:border-slate-800 disabled:bg-slate-800/40 disabled:text-slate-600 py-3 rounded-xl font-bold transition-all duration-200">
+                    提取分红红利
+                </button>
+            </div>
+
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur space-y-4">
+                <h3 class="text-sm font-bold text-slate-300">💡 评委专享 - 激活智能体测验</h3>
+                <input id="devPassword" type="password" placeholder="输入评委密码解锁真实 AI 接口" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-lg text-sm outline-none text-emerald-400 placeholder:text-slate-600">
+                <textarea id="aiQuestion" placeholder="提问该智能体：例如，帮我设计一个荒山绿化方案？" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-lg text-sm h-20 outline-none text-slate-200 resize-none"></textarea>
+                <button id="askAiBtn" disabled class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg text-sm font-bold transition-all">
+                    唤醒 AI 决策
+                </button>
+                <div id="aiResponse" class="text-xs text-slate-400 mt-2 max-h-32 overflow-y-auto leading-relaxed whitespace-pre-line"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // 🌟 核心配置文件：替换为你刚刚在 IOPN 部署的全新众筹合约地址！
+        const CONTRACT_ADDRESS = "0xF0c589E3a934953b7a8fcf2dC3e47bDa0a2A2129";
+        
+        // 我们新合约的 ABI
+        const CONTRACT_ABI = [
+            "function projects(uint256) view returns (address creator, string agentName, uint256 targetAmount, uint256 raisedAmount, uint256 deadline, bool exists, bool isWithdrawn, uint256 totalRewardPool)",
+            "function contributions(uint256, address) view returns (uint256)",
+            "function invest(uint256) payable",
+            "function claimDividend(uint256)",
+            "function dividendWithdrawn(uint256, address) view returns (uint256)"
+        ];
+
+        // 🔒 经过异或混淆的 DeepSeek API Key（防止评委右键源码一眼偷走）
+        // 密文由真实的 sk-... 与秘钥 "IOPN2026" 计算得出。评委在网页输入 "IOPN2026" 才能临时解密使用
+        const ENCRYPTED_KEY = [58, 36, 125, 42, 81, 81, 2, 14, 122, 122, 99, 119, 1, 81, 80, 2, 125, 119, 98, 44, 86, 81, 0, 84, 45, 125, 101, 42, 2, 4, 87, 4, 123, 127, 99]; 
+
+        let signer, contract;
+        const projectId = 1; // 演示方便，锁定读取第一个众筹项目
+
+        // 获取网页元素组件
+        const connectBtn = document.getElementById("connectBtn");
+        const investBtn = document.getElementById("investBtn");
+        const claimBtn = document.getElementById("claimBtn");
+        const askAiBtn = document.getElementById("askAiBtn");
+
+        // 1. 连接加密钱包并刷新账本数据
+        connectBtn.onclick = async () => {
+            const provider = new ethers.BrowserProvider(window.okxwallet || window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            signer = await provider.getSigner();
+            contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+            connectBtn.innerText = "Wallet Connected";
+            investBtn.disabled = false;
+            claimBtn.disabled = false;
+            askAiBtn.disabled = false;
+
+            await refreshData();
+        };
+
+        // 2. 刷新合约链上实时数据
+        async function refreshData() {
+            if (!contract || !signer) return;
+            const myAddr = await signer.getAddress();
+
+            try {
+                // 读取链上项目详情
+                const proj = await contract.projects(projectId);
+                const raisedAmountEth = parseFloat(ethers.formatEther(proj.raisedAmount));
+                const targetAmountEth = parseFloat(ethers.formatEther(proj.targetAmount));
+
+                // 刷新众筹面板
+                document.getElementById("raisedText").innerText = raisedAmountEth + " OPN";
+                let pct = (raisedAmountEth / (targetAmountEth || 1)) * 100;
+                document.getElementById("progressBar").style.width = Math.min(pct, 100) + "%";
+
+                // 读取个人的投资数据
+                const myCont = await contract.contributions(projectId, myAddr);
+                document.getElementById("myContribution").innerText = parseFloat(ethers.formatEther(myCont)).toFixed(2) + " OPN";
+
+                // 计算属于自己的可领分红
+                if (myCont > 0n && proj.raisedAmount > 0n) {
+                    const totalOwed = (myCont * proj.totalRewardPool) / proj.raisedAmount;
+                    const withdrawn = await contract.dividendWithdrawn(projectId, myAddr);
+                    const claimable = totalOwed - withdrawn;
+                    document.getElementById("myDividend").innerText = parseFloat(ethers.formatEther(claimable)).toFixed(4) + " OPN";
+                }
+            } catch (e) {
+                console.error("链上数据读取失败", e);
+            }
+        }
+
+        // 3. 执行注入算力打款（众筹）
+        investBtn.onclick = async () => {
+            const amt = document.getElementById("investAmount").value;
+            if(!amt || amt <= 0) return alert("请输入有效的赞助金额！");
+            try {
+                investBtn.innerText = "正在注入链上...";
+                const tx = await contract.invest(projectId, { value: ethers.parseEther(amt) });
+                await tx.wait();
+                alert("🎉 算力赞助成功！你已成为该 Agent 的投资股东。");
+                await refreshData();
+            } catch (e) {
+                alert("交易失败: " + e.message);
+            } finally {
+                investBtn.innerText = "注入算力";
+            }
+        };
+
+        // 4. 一键提取分红
+        claimBtn.onclick = async () => {
+            try {
+                claimBtn.innerText = "正在提红...";
+                const tx = await contract.claimDividend(projectId);
+                await tx.wait();
+                alert("💰 收益红利已成功提领回你的钱包！");
+                await refreshData();
+            } catch (e) {
+                alert("提领失败: " + e.message);
+            } finally {
+                claimBtn.innerText = "提取分红红利";
+            }
+        };
+
+        // 5. 🔒 密码锁解密真实 AI 接口（评委体验区）
+        askAiBtn.onclick = async () => {
+            const pwd = document.getElementById("devPassword").value;
+            const q = document.getElementById("aiQuestion").value;
+            const respBox = document.getElementById("aiResponse");
+            
+            if(!pwd) return alert("请输入激活密码解锁 AI 接口！");
+            if(!q) return alert("请输入您想对智能体提的问题！");
+
+            try {
+                askAiBtn.innerText = "智能体决策中...";
+                respBox.innerText = "正在解密算力节点并呼叫 AI 大脑...";
+
+                // 🧠 在浏览器本地用密码动态解密出真实的 DeepSeek Key，安全物理隔绝！
+                let key = "";
+                for(let i=0; i<ENCRYPTED_KEY.length; i++) {
+                    key += String.fromCharCode(ENCRYPTED_KEY[i] ^ pwd.charCodeAt(i % pwd.length));
+                }
+
+                const response = await fetch("https://api.deepseek.com/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${key}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [{"role": "user", "content": q}]
+                    })
+                });
+
+                if(!response.ok) throw new Error("解密密钥错误或接口报错，请检查密码！");
+                const data = await response.json();
+                respBox.innerText = data.choices[0].message.content;
+            } catch (e) {
+                respBox.innerText = "❌ 唤醒失败。原因：" + e.message + "\n(提示：请确保填入的激活密码正确且大模型账户余额充足)";
+            } finally {
+                askAiBtn.innerText = "唤醒 AI 决策";
+            }
+        };
+    </script>
+</body>
+</html>
